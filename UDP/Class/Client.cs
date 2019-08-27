@@ -8,11 +8,11 @@ namespace UDP
     public class Client<T>
         where T : IWriterAndGetter
     {
-        private const int port = 11000;
+        private const int port = 61000;
 
-        public static void Send(Socket socket, string ip)
+        public static void Send(Socket socket, string ip, string message_2 = null)
         {
-            var message = Activator.CreateInstance<T>().Get();
+            var message = Activator.CreateInstance<T>().Get(message_2);
             var broadcast = IPAddress.Parse(ip);
             var sendbuf = Encoding.UTF8.GetBytes(message);
             var ep = new IPEndPoint(broadcast, port);

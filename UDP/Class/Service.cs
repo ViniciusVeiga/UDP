@@ -8,7 +8,7 @@ namespace UDP
     public class Service<T> 
         where T : IWriterAndGetter
     {
-        private const int port = 11000;
+        private const int port = 60000;
 
         public static void ReceiveMessage()
         {
@@ -22,8 +22,8 @@ namespace UDP
                 {
                     byte[] bytes = listener.Receive(ref groupEP);
                     var message = $"\n\t\t {Encoding.UTF8.GetString(bytes, 0, bytes.Length)} (Invasor)";
-
-                    sender.Write(message);
+                    
+                    sender.Write(message, groupEP.ToString());
                 }             
             }
             catch (SocketException e)
