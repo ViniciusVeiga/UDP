@@ -7,35 +7,52 @@ namespace UDP
 {
     public class WriterAndGetter : IWriterAndGetter
     {
+        string IWriterAndGetter.Send { get => "(Você): "; set => throw new NotImplementedException(); }
+
         public void Write(string message, string ip = "")
         {
             Console.WriteLine(message);
         }
 
-        public string Get(string message = "(Você): ")
+        public string Get(string message)
         {
             Console.Write(message);
             return Console.ReadLine();
+        }
+
+        void IWriterAndGetter.Write(string send, string ip)
+        {
+            throw new NotImplementedException();
+        }
+
+        string IWriterAndGetter.Get(string send)
+        {
+            throw new NotImplementedException();
         }
     }
 
     public class WriterAndGetter_2 : IWriterAndGetter
     {
+        public const string request = "Heartbeat Request";
+        public const string reply = "Heartbeat Reply";
+
+        public string Send { get => "Heartbeat Request"; set => throw new NotImplementedException(); }
+
         public void Write(string message, string ip = "")
         {
-            if (message.Equals("Heartbeat Request"))
+            if (message.Equals(request))
             {
-                var respost = "Heartbeat Reply";
                 var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
-                Client<WriterAndGetter_2>.Send(socket, ip, respost);
-                Console.WriteLine(respost);
+                Client<WriterAndGetter_2>.Send(socket, ip);
             }
+
+            Console.WriteLine(reply);
         }
 
-        public string Get(string message = "Heartbeat Request")
+        public string Get(string message)
         {
-            Console.Write(message);
+            Console.WriteLine(message);
             return message;
         }
     }

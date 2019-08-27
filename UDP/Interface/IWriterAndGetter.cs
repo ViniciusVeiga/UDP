@@ -6,7 +6,9 @@ namespace UDP
 {
     public interface IWriterAndGetter
     {
+
+        string Send { get; set; }
         void Write(string send, string ip = "");
-        string Get(string send = "(Você): ");
+        string Get(string send);
     }
 }
