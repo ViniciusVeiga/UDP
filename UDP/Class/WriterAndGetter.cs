@@ -25,7 +25,7 @@ namespace UDP
             throw new NotImplementedException();
         }
 
-        string IWriterAndGetter.Get(string send)
+        string IWriterAndGetter.Get(string send, string ip = "")
         {
             throw new NotImplementedException();
         }
@@ -40,19 +40,25 @@ namespace UDP
 
         public void Write(string message, string ip = "")
         {
-            if (message.Equals(request))
+            if (message.ToLower().Equals(request.ToLower()))
             {
                 var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
                 Client<WriterAndGetter_2>.Send(socket, ip);
+
+                Console.WriteLine($"\t\t\t\t{request} - {ip}");
+                Console.WriteLine($"{reply} - {ip}");
             }
 
-            Console.WriteLine(reply);
+            if (message.ToLower().Equals(reply.ToLower()))
+            {
+                Console.WriteLine($"\t\t\t\t{reply} - {ip}");
+            }
         }
 
-        public string Get(string message)
+        public string Get(string message, string ip = "")
         {
-            Console.WriteLine(message);
+            Console.WriteLine($"{message} - {ip}");
             return message;
         }
     }

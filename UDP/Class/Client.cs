@@ -14,13 +14,13 @@ namespace UDP
         public static void Send(Socket socket, string ip)
         {
             var getter = Activator.CreateInstance<T>();
-            var message = getter.Get(getter.Send);
+            var message = getter.Get(getter.Send, ip);
             var broadcast = IPAddress.Parse(ip);
             var sendbuf = Encoding.UTF8.GetBytes(message);
             var ep = new IPEndPoint(broadcast, port);
 
             socket.SendTo(sendbuf, ep);
-            Thread.Sleep(2000);
+            Thread.Sleep(1000);
         }
     }
 }

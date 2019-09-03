@@ -8,7 +8,7 @@ namespace UDP
     public class Service<T> 
         where T : IWriterAndGetter
     {
-        private const int port = 61000;
+        private const int port = 60000;
 
         public static void ReceiveMessage()
         {

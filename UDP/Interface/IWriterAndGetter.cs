@@ -9,6 +9,6 @@ namespace UDP
 
         string Send { get; set; }
         void Write(string send, string ip = "");
-        string Get(string send);
+        string Get(string send, string ip = "");
     }
 }
