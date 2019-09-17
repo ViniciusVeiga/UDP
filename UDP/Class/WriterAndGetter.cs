@@ -5,11 +5,12 @@ using System.Text;
 
 namespace UDP
 {
+    #region 1
     public class WriterAndGetter : IWriterAndGetter
     {
         string IWriterAndGetter.Send { get => "(Você): "; set => throw new NotImplementedException(); }
 
-        public void Write(string message, string ip = "")
+        public void Write(string message, string ip)
         {
             Console.WriteLine(message);
         }
@@ -29,7 +30,16 @@ namespace UDP
         {
             throw new NotImplementedException();
         }
+
+        public void Write(string send, string ip, List<string> ips)
+        {
+            throw new NotImplementedException();
+        }
     }
+
+    #endregion
+
+    #region 2
 
     public class WriterAndGetter_2 : IWriterAndGetter
     {
@@ -38,7 +48,7 @@ namespace UDP
 
         public string Send { get => "Heartbeat Request"; set => throw new NotImplementedException(); }
 
-        public void Write(string message, string ip = "")
+        public void Write(string message, string ip)
         {
             if (message.ToLower().Equals(request.ToLower()))
             {
@@ -61,5 +71,49 @@ namespace UDP
             Console.WriteLine($"{message} - {ip}");
             return message;
         }
+
+        public void Write(string send, string ip, List<string> ips)
+        {
+            throw new NotImplementedException();
+        }
     }
+
+    #endregion
+
+    #region 3
+
+    public class WriterAndGetter_3 : IWriterAndGetter
+    {
+        public const string request = "Heartbeat Request";
+        public const string reply = "Heartbeat Reply";
+
+        public string Send { get => "Heartbeat Request"; set => throw new NotImplementedException(); }
+        public void Write(string message, string ip, List<string> ips)
+        {
+            if (message.ToLower().Equals(request.ToLower()))
+            {
+                var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+
+                Client<WriterAndGetter_2>.Send(socket, ip);
+            }
+
+            if (message.ToLower().Equals(reply.ToLower()))
+            {
+                
+            }
+        }
+
+        public string Get(string message, string ip = "")
+        {
+            Console.WriteLine($"{message} - {ip}");
+            return message;
+        }
+
+        public void Write(string send, string ip = "")
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    #endregion
 }

@@ -8,7 +8,8 @@ namespace UDP
     {
 
         string Send { get; set; }
-        void Write(string send, string ip = "");
+        void Write(string send, string ip, List<string> ips);
+        void Write(string send, string ip);
         string Get(string send, string ip = "");
     }
 }
