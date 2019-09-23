@@ -29,13 +29,13 @@ namespace UDP
         public static void Main()
         {
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            var thread = new Thread(Service<WriterAndGetter_2>.ReceiveMessage);
+            var thread = new Thread(Service<WriterAndGetter_3>.ReceiveMessage);
 
             thread.Start();
             while (true) {
                 foreach (var ip in Ips)
                 {
-                    Client<WriterAndGetter_2>.Send(socket, ip.Item2);
+                    Client<WriterAndGetter_3>.Send(socket, ip.Item2);
                 }
             }
         }
