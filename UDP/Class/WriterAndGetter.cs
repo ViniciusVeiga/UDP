@@ -106,6 +106,11 @@ namespace UDP
 
         public string Get(string send, Candidate candidate)
         {
+            if (!candidate.DeadOrNot)
+                Console.WriteLine($"Vivo: {candidate.Ip} | Prioridade: {candidate.Priority}");
+            else
+                Console.WriteLine($"Morto: {candidate.Ip} | Prioridade: {candidate.Priority}");
+
             candidate.CountSend += 1; // Conta o Envio
 
             SetIfIsDead(candidate); // Olha se não está morto
@@ -195,7 +200,7 @@ namespace UDP
 
         public string Get(string send, Candidate candidate)
         {
-            Console.WriteLine($"Vivo: {candidate.Ip} | Prioridade: {candidate.Priority}");
+            //Console.WriteLine($"Vivo: {candidate.Ip} | Prioridade: {candidate.Priority}");
 
             return send;
         }
