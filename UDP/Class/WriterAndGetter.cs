@@ -29,6 +29,11 @@ namespace UDP
         {
             throw new NotImplementedException();
         }
+
+        public string Get(string send, Candidate candidate)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     #endregion
@@ -65,6 +70,11 @@ namespace UDP
             Console.WriteLine($"{message} - {ip}");
             return message;
         }
+
+        public string Get(string send, Candidate candidate)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     #endregion
@@ -75,25 +85,35 @@ namespace UDP
     {
         private const string request = "Heartbeat Request";
         private const string reply = "Heartbeat Reply";
+        public string Send { get => request; }
         private Candidate oldLeader = new Candidate();
-
-        public string Send { get => "Heartbeat Request"; }
 
         public void Write(string message, string ip)
         {
             if (message.ToLower().Equals(request.ToLower()))
             {
-                var candidate = GetCandidate(ip);
-                ResetIfIsDead(candidate);
+                var candidate = GetCandidate(ip); // Pega Candidato
+                ResetIfIsDead(candidate); // Revive o Candidato
 
-                var leader = GetLeader(ip);
-                WriteLeader(leader);
+                var leader = GetLeader(ip); // Calcula o Lider
+                WriteLeader(leader); // Printa o Lider
 
+                // Responde para quem está vivo
                 var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-
-                Client<WriterAndGetter_2>.Send(socket, ip);
+                Client<WriterAndGetter_4>.Send(socket, candidate);
             }
         }
+
+        public string Get(string send, Candidate candidate)
+        {
+            candidate.CountSend += 1; // Conta o Envio
+
+            SetIfIsDead(candidate); // Olha se não está morto
+
+            return send;
+        }
+
+        #region Methods Helpers
 
         public void ResetIfIsDead(Candidate candidate)
         {
@@ -108,19 +128,9 @@ namespace UDP
 
         }
 
-        public string Get(string message, string ip = "")
-        {
-            var candidate = GetCandidate(ip);
-            candidate.CountSend += 1;
-
-            SetIfIsDead(candidate);
-
-            return message;
-        }
-
         public void SetIfIsDead(Candidate candidate)
         {
-            if (candidate.CountSend - candidate.CountReceive > 4 && candidate.DeadOrNot == false)
+            if (candidate.CountSend - candidate.CountReceive > 2 && candidate.DeadOrNot == false)
             {
                 candidate.DeadOrNot = true;
             }
@@ -161,6 +171,38 @@ namespace UDP
             catch { }
 
             return null;
+        }
+
+        public string Get(string send, string ip)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+    }
+
+    public class WriterAndGetter_4 : IWriterAndGetter
+    {
+        private const string request = "Heartbeat Request";
+        private const string reply = "Heartbeat Reply";
+        public string Send { get => request; }
+
+        public string Get(string send, string ip)
+        {
+            Console.WriteLine($"Vivo: {ip}");
+            return send;
+        }
+
+        public string Get(string send, Candidate candidate)
+        {
+            Console.WriteLine($"Vivo: {candidate.Ip} | Prioridade: {candidate.Priority}");
+
+            return send;
+        }
+
+        public void Write(string send, string ip)
+        {
+            throw new NotImplementedException();
         }
     }
 

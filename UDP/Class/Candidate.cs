@@ -19,6 +19,5 @@ namespace UDP.Class
         public int CountSend { get; set; }
         public int CountReceive { get; set; }
         public bool DeadOrNot { get; set; } = false;
-        public bool Leader { get; set; } = false;
     }
 }
