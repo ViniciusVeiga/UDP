@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using UDP.Class;
 
 namespace UDP
 {
@@ -72,52 +73,94 @@ namespace UDP
 
     public class WriterAndGetter_3 : IWriterAndGetter
     {
-        private List<Tuple<int, string>> Candidates = new List<Tuple<int, string>>();
         private const string request = "Heartbeat Request";
         private const string reply = "Heartbeat Reply";
+        private Candidate oldLeader = new Candidate();
 
         public string Send { get => "Heartbeat Request"; }
 
         public void Write(string message, string ip)
         {
-            var leader = GetLeader(ip);
-
-            if (leader != null)
-                Console.WriteLine($"Lider: {leader.Item2}");
-
             if (message.ToLower().Equals(request.ToLower()))
             {
+                var candidate = GetCandidate(ip);
+                ResetIfIsDead(candidate);
+
+                var leader = GetLeader(ip);
+                WriteLeader(leader);
+
                 var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
                 Client<WriterAndGetter_2>.Send(socket, ip);
-                AddCandidate(ip);
             }
+        }
+
+        public void ResetIfIsDead(Candidate candidate)
+        {
+            if (candidate.DeadOrNot == true)
+            {
+                candidate.DeadOrNot = false;
+                candidate.CountReceive = 0;
+                candidate.CountSend = 0;
+            }
+            else
+                candidate.CountReceive += 1;
+
         }
 
         public string Get(string message, string ip = "")
         {
-            Console.WriteLine($"{message} - {ip}");
+            var candidate = GetCandidate(ip);
+            candidate.CountSend += 1;
+
+            SetIfIsDead(candidate);
+
             return message;
         }
 
-        public Tuple<int, string> GetLeader(string ip)
+        public void SetIfIsDead(Candidate candidate)
+        {
+            if (candidate.CountSend - candidate.CountReceive > 4 && candidate.DeadOrNot == false)
+            {
+                candidate.DeadOrNot = true;
+            }
+        }
+
+        public void WriteLeader(Candidate leader)
+        {
+            if (leader != null)
+            {
+                if (oldLeader.Ip != leader.Ip)
+                {
+                    Console.WriteLine($"Lider: {leader.Ip}");
+                    oldLeader = leader;
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Lider: None");
+            }
+        }
+
+        public Candidate GetCandidate(string ip)
+        {
+            return Program.Ips.Find(i => i.Ip == ip);
+        }
+
+        public Candidate GetLeader(string ip)
         {
             try
             {
-                if (Candidates.Any(i => i.Item2 == ip))
-                {
-                    var min = Candidates.Select(o => o.Item1).Min();
-                    return Candidates.Find(i => i.Item1.Equals(min));
-                }
+                var min = Program.Ips
+                    .Where(i => i.DeadOrNot == false)
+                    .Select(o => o.Priority)
+                    .Min();
+
+                return Program.Ips.Find(i => i.Priority.Equals(min));
             }
             catch { }
 
             return null;
-        }
-
-        public void AddCandidate(string ip)
-        {
-            Candidates.Add(Program.Ips.Find(i => i.Item2 == ip));
         }
     }
 
