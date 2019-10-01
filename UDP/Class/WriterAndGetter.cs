@@ -101,7 +101,17 @@ namespace UDP
                 // Responde para quem está vivo
                 var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                 Client<WriterAndGetter_4>.Send(socket, candidate);
+
+                // Descomentar Depois
+                //Console.WriteLine($"\t\t\t\t{request} - {ip}");
+                //Console.WriteLine($"{reply} - {ip}");
             }
+
+            // Descomentar Depois
+            //if (message.ToLower().Equals(reply.ToLower()))
+            //{
+            //    Console.WriteLine($"\t\t\t\t{reply} - {ip}");
+            //}
         }
 
         public string Get(string send, Candidate candidate)
@@ -111,9 +121,10 @@ namespace UDP
             else
                 Console.WriteLine($"Morto: {candidate.Ip} | Prioridade: {candidate.Priority}");
 
-            candidate.CountSend += 1; // Conta o Envio
+            // Console.WriteLine($"{send} - {candidate.Ip}"); Descomentar Depois
 
             SetIfIsDead(candidate); // Olha se não está morto
+            candidate.Count += 1; // Conta o Envio
 
             return send;
         }
@@ -122,20 +133,13 @@ namespace UDP
 
         public void ResetIfIsDead(Candidate candidate)
         {
-            if (candidate.DeadOrNot == true)
-            {
-                candidate.DeadOrNot = false;
-                candidate.CountReceive = 0;
-                candidate.CountSend = 0;
-            }
-            else
-                candidate.CountReceive += 1;
-
+            candidate.DeadOrNot = false;
+            candidate.Count = 0;
         }
 
         public void SetIfIsDead(Candidate candidate)
         {
-            if (candidate.CountSend - candidate.CountReceive > 2 && candidate.DeadOrNot == false)
+            if (candidate.Count > 2 && candidate.DeadOrNot == false)
             {
                 candidate.DeadOrNot = true;
             }
@@ -144,17 +148,7 @@ namespace UDP
         public void WriteLeader(Candidate leader)
         {
             if (leader != null)
-            {
-                if (oldLeader.Ip != leader.Ip)
-                {
-                    Console.WriteLine($"Lider: {leader.Ip}");
-                    oldLeader = leader;
-                }
-            }
-            else
-            {
-                Console.WriteLine($"Lider: None");
-            }
+                Console.WriteLine($"Lider: {leader.Ip}");
         }
 
         public Candidate GetCandidate(string ip)
@@ -166,12 +160,16 @@ namespace UDP
         {
             try
             {
-                var min = Program.Ips
+                var leader = Program.Ips
                     .Where(i => i.DeadOrNot == false)
-                    .Select(o => o.Priority)
-                    .Min();
+                    .OrderBy(x => x.Priority)
+                    .First();
 
-                return Program.Ips.Find(i => i.Priority.Equals(min));
+                if (oldLeader != leader)
+                {
+                    oldLeader = leader;
+                    return leader;
+                }
             }
             catch { }
 
