@@ -93,35 +93,39 @@ namespace UDP
             if (message.ToLower().Equals(request.ToLower()))
             {
                 var candidate = GetCandidate(ip); // Pega Candidato
+
+                // Responde para quem está vivo
+                if (candidate != null)
+                {
+                    var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                    Client<WriterAndGetter_4>.Send(socket, candidate);
+                }
+                //Descomentar Depois
+                Console.WriteLine($"\t\t\t\t{request} - {ip}");
+                Console.WriteLine($"{reply} - {ip}");
+            }
+
+            //Descomentar Depois
+            if (message.ToLower().Equals(reply.ToLower()))
+            {
+                var candidate = GetCandidate(ip); // Pega Candidato
                 ResetIfIsDead(candidate); // Revive o Candidato
 
                 var leader = GetLeader(ip); // Calcula o Lider
                 WriteLeader(leader); // Printa o Lider
 
-                // Responde para quem está vivo
-                var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-                Client<WriterAndGetter_4>.Send(socket, candidate);
-
-                // Descomentar Depois
-                //Console.WriteLine($"\t\t\t\t{request} - {ip}");
-                //Console.WriteLine($"{reply} - {ip}");
+                Console.WriteLine($"\t\t\t\t{reply} - {ip}");
             }
-
-            // Descomentar Depois
-            //if (message.ToLower().Equals(reply.ToLower()))
-            //{
-            //    Console.WriteLine($"\t\t\t\t{reply} - {ip}");
-            //}
         }
 
         public string Get(string send, Candidate candidate)
         {
-            if (!candidate.DeadOrNot)
-                Console.WriteLine($"Vivo: {candidate.Ip} | Prioridade: {candidate.Priority}");
-            else
-                Console.WriteLine($"Morto: {candidate.Ip} | Prioridade: {candidate.Priority}");
+            //if (!candidate.DeadOrNot)
+            //    Console.WriteLine($"Vivo: {candidate.Ip} | Prioridade: {candidate.Priority}");
+            //else
+            //    Console.WriteLine($"Morto: {candidate.Ip} | Prioridade: {candidate.Priority}");
 
-            // Console.WriteLine($"{send} - {candidate.Ip}"); Descomentar Depois
+            Console.WriteLine($"{send} - {candidate.Ip}");// Descomentar Depois
 
             SetIfIsDead(candidate); // Olha se não está morto
             candidate.Count += 1; // Conta o Envio
@@ -133,13 +137,16 @@ namespace UDP
 
         public void ResetIfIsDead(Candidate candidate)
         {
-            candidate.DeadOrNot = false;
-            candidate.Count = 0;
+            if (candidate != null)
+            {
+                candidate.DeadOrNot = false;
+                candidate.Count = 0;
+            }
         }
 
         public void SetIfIsDead(Candidate candidate)
         {
-            if (candidate.Count > 2 && candidate.DeadOrNot == false)
+            if (candidate.Count > 1 && candidate.DeadOrNot == false)
             {
                 candidate.DeadOrNot = true;
             }
@@ -148,7 +155,7 @@ namespace UDP
         public void WriteLeader(Candidate leader)
         {
             if (leader != null)
-                Console.WriteLine($"Lider: {leader.Ip}");
+                Console.WriteLine($"\t\t\t\t\t\t\t\tLider: {leader.Ip} - Prioridade: {leader.Priority}");
         }
 
         public Candidate GetCandidate(string ip)
@@ -165,11 +172,11 @@ namespace UDP
                     .OrderBy(x => x.Priority)
                     .First();
 
-                if (oldLeader != leader)
-                {
+                //if (oldLeader != leader)
+                //{
                     oldLeader = leader;
                     return leader;
-                }
+                //}
             }
             catch { }
 
